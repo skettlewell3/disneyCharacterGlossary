@@ -6,10 +6,11 @@ import './App.css'
 
 function App() {
   const [characters, setCharacters] = useState([]);
+  const [displayCharacters, setDisplayCharacters] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredCharacters, setFilteredCharacters] = useState(characters);
+  const [searchMode, setSearchMode] = useState("local"); //local or main
 
   useEffect(() => {
     const fetchData = async () => {
@@ -18,29 +19,49 @@ function App() {
         const data = await res.json();
         setCharacters(data.data);
         setTotalPages(data.info.totalPages)
+        if (searchMode === "local") setDisplayCharacters(data.data)
       } catch (error) {
         console.error("Error fetching characters:", error);
       }
     };
     fetchData();
-  }, [page]);
+  }, [page, searchMode]);
 
-  const handleSearch = useCallback((query) => {
+  const handleSearch = useCallback(async (query) => {
     setSearchQuery(query);
-    const lowerQuery = query.toLowerCase();
-    setFilteredCharacters(
-      characters.filter(char => 
-        char.name.toLowerCase().includes(lowerQuery) ||
-        char.films?.some(f => f.toLowerCase().includes(lowerQuery)) ||
-        char.tvShows?.some(tv => tv.toLowerCase().includes(lowerQuery)) ||
-        char.parkAttractions?.some(pA => pA.toLowerCase().includes(lowerQuery))
-      )
-    )
-  }, [characters]);
 
-  useEffect(() => {
-    handleSearch(searchQuery);
-  }, [handleSearch, searchQuery]);
+    if (searchMode === "local") {
+      const lowerQuery = query.toLowerCase();
+      setDisplayCharacters(
+        characters.filter(char => 
+          char.name.toLowerCase().includes(lowerQuery) ||
+          char.films?.some(f => f.toLowerCase().includes(lowerQuery)) ||
+          char.tvShows?.some(tv => tv.toLowerCase().includes(lowerQuery)) ||
+          char.parkAttractions?.some(pA => pA.toLowerCase().includes(lowerQuery))
+        )
+      );
+    } else if (searchMode === "name") {
+      if (!query) {
+        setDisplayCharacters([]);
+        return;
+      }
+      try {
+        const res = await fetch(`https://api.disneyapi.dev/character?name=${query}`);
+        const data = await res.json();
+        setDisplayCharacters(data.data || []);
+      } catch (err) {
+        console.log("API name search failed", err);
+        setDisplayCharacters([]);
+      }
+    }
+  }, [characters, searchMode]);
+
+
+  const handleSearchMode = (mode) => {
+    setSearchMode(mode);
+    setSearchQuery("");
+    setDisplayCharacters(mode === "local" ? characters : []);
+  }
 
   const handleAddCharacter = (newCharacter) => {
     setCharacters((prev) => [newCharacter, ...prev]);
@@ -56,25 +77,25 @@ function App() {
   const handlePrevPage = () => setPage((p) => Math.max(p - 1, 1));
 
   const sortByIdAsc = () => {
-    setCharacters((prev) => 
+    setDisplayCharacters((prev) => 
     [...prev].sort((a, b) => (a._id > b._id ? 1 : -1))
     );
   };
 
   const sortByIdDesc = () => {
-    setCharacters((prev) => 
+    setDisplayCharacters((prev) => 
     [...prev].sort((a, b) => (a._id < b._id ? 1 : -1))
     );
   };
 
   const sortByABC = () => {
-    setCharacters((prev) => 
+    setDisplayCharacters((prev) => 
     [...prev].sort((a, b) => a.name.localeCompare(b.name))
     );
   };
 
   const sortByZYX = () => {
-    setCharacters((prev) => 
+    setDisplayCharacters((prev) => 
     [...prev].sort((a, b) => b.name.localeCompare(a.name))
     );
   };
@@ -93,9 +114,11 @@ function App() {
         onSortZYX={sortByZYX}
         onSearch={handleSearch}
         searchQuery={searchQuery}
+        searchMode={searchMode}
+        onSearchChange={handleSearchMode}
       />
       <CharacterDisplay 
-      characters={filteredCharacters}
+      characters={displayCharacters}
       onDeleteCharacter={handleDeleteCharacter}
       />
     </>
