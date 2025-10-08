@@ -6,6 +6,7 @@ export default function CharForm({ onAddCharacter }) {
         imgUrl: "",
         films: "",
         tvShows: "",
+        parkAttractions: "",
     })
 
     const handleChange = (e) => {
@@ -17,8 +18,7 @@ export default function CharForm({ onAddCharacter }) {
     };
 
     const handleSubmit = (e) => {
-        e.preventDefault();
-    
+        e.preventDefault();    
 
         const newCharacter = {
             _id: crypto.randomUUID(),
@@ -30,6 +30,9 @@ export default function CharForm({ onAddCharacter }) {
             tvShows: formData.tvShows
                 ? formData.tvShows.split(",").map((tv) => tv.trim())
                 : [],
+            parkAttractions: formData.parkAttractions
+                ? formData.parkAttractions.split(",").map((pA) => pA.trim())
+                : [], 
         };
 
         onAddCharacter(newCharacter);
@@ -77,6 +80,16 @@ export default function CharForm({ onAddCharacter }) {
                 value={formData.tvShows}
                 onChange={handleChange}
                 placeholder='TV Shows (seperate by ,)'
+                className='p-2 bg-white rounded-md border border-gray-300 placeholder-gray-700'
+                />
+            </fieldset>
+            <fieldset>
+                <input 
+                type="text" 
+                name="parkAttractions" 
+                value={formData.parkAttractions}
+                onChange={handleChange}
+                placeholder='Park Attractions... (seperate by ,)'
                 className='p-2 bg-white rounded-md border border-gray-300 placeholder-gray-700'
                 />
             </fieldset>

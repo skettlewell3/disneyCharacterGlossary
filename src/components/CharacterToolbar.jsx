@@ -1,15 +1,16 @@
 export default function CharacterToolbar ({ 
     page, 
+    totalPages,
     onNext, 
     onPrev, 
-    totalPages,
     onSortIdAsc,
     onSortIdDesc,
     onSortABC,
     onSortZYX,
     searchQuery,
-    onSearch
-
+    onSearch,
+    searchMode,
+    onSearchChange
 }) {
     return (
         <div className="w-full flex justify-between items-center bg-gray-700 text-white p-4 rounded-md mb-6">
@@ -48,17 +49,25 @@ export default function CharacterToolbar ({
                 </button>
             </span>
 
-            <span className="font-semibold">
+            <span className={`font-semibold ${searchMode === "name" ? "hidden" : ""}`}>
                 Page {page} {totalPages ? `of ${totalPages}` : ""}
             </span>
 
             <span className="flex gap-2">
                 <input 
                 type="text"
-                placeholder="Search..."
+                placeholder={searchMode === "local" ? "Search page..." : "Search any name..."}
                 value={searchQuery}
                 onChange={(e) => onSearch(e.target.value)}
+                className="px-2 py-1 rounded bg-white text-black"
                 />
+                <select 
+                    value={searchMode}
+                    onChange={(e) => onSearchChange(e.target.value)}
+                >
+                    <option value="local" className="text-black">Page</option>
+                    <option value="name" className="text-black">Name</option>
+                </select>
             </span>
 
             <button
