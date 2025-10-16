@@ -37,11 +37,12 @@ export default function CharForm({ onAddCharacter }) {
 
         onAddCharacter(newCharacter);
         setFormData({ name: "", imgUrl: "", films: "", tvShows: ""});
+        localStorage.setItem(`customCharacter-${newCharacter.name.toLowerCase()}`, JSON.stringify(newCharacter));
     };
 
     return (
         <form onSubmit={handleSubmit} id="addCharacter" 
-        className='bg-gray-500 p-6 rounded-xl grid grid-cols-2 gap-4 max-w-2xl mx-auto'
+        className='bg-gray-500 p-6 rounded-xl grid grid-cols-2 gap-4 max-w-2xl mx-auto text-black'
         >
             <fieldset>
                 <input 

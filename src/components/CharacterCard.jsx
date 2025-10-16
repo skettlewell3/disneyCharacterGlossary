@@ -3,6 +3,7 @@ export default function CharacterCard({ character, onDelete }) {
     const handleClick = () => {
         if (window.confirm(`Delete ${character.name}?`)) {
             onDelete(character._id);
+            localStorage.removeItem(`customCharacter-${character.name.toLowerCase()}`)
         }
     };
 
@@ -17,7 +18,7 @@ export default function CharacterCard({ character, onDelete }) {
                 src={imageUrl} 
                 alt={name} width={150} 
                 className="w-40 h-40 object-cover"
-                />}
+            />}
 
             <div className='w-full overflow-y-scroll'>
                 {films?.length > 0 && (
