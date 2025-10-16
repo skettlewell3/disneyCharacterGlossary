@@ -27,6 +27,37 @@ function App() {
     fetchData();
   }, [page, searchMode]);
 
+    useEffect(() => {
+    // Load any locally stored custom characters
+    const loadLocalCharacters = () => {
+      const localChars = [];
+
+      // Loop through all localStorage keys
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith("customCharacter-")) {
+          try {
+            const char = JSON.parse(localStorage.getItem(key));
+            if (char && char._id) {
+              localChars.push(char);
+            }
+          } catch (err) {
+            console.error("Failed to parse local character:", key, err);
+          }
+        }
+      }
+
+      if (localChars.length > 0) {
+        // Add local characters to both state arrays
+        setCharacters(prev => [...localChars, ...prev]);
+        setDisplayCharacters(prev => [...localChars, ...prev]);
+      }
+    };
+
+    loadLocalCharacters();
+  }, []);
+
+
   const handleSearch = useCallback(async (query) => {
     setSearchQuery(query);
 
